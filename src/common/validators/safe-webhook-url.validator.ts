@@ -28,7 +28,8 @@ export function IsSafeWebhookUrl(options?: ValidationOptions) {
       target: object.constructor,
       propertyName,
       options: {
-        message: `${propertyName} must not target an internal, loopback, ` +
+        message:
+          `${propertyName} must not target an internal, loopback, ` +
           'link-local, or cloud-metadata address',
         ...options,
       },
