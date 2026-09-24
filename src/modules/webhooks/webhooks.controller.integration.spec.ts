@@ -11,16 +11,18 @@ class InMemoryWebhookRepository {
   create(data: Partial<Webhook>) {
     return { id: randomUUID(), createdAt: new Date(), ...data } as Webhook;
   }
-  async save(w: Webhook) {
+  save(w: Webhook) {
     this.rows.set(w.id, w);
-    return w;
+    return Promise.resolve(w);
   }
-  async findOne({ where: { id } }: { where: { id: string } }) {
-    return this.rows.get(id) ?? null;
+  findOne({ where: { id } }: { where: { id: string } }) {
+    return Promise.resolve(this.rows.get(id) ?? null);
   }
   createQueryBuilder() {
     const active = () => [...this.rows.values()].filter((w) => w.isActive);
-    const page = { getManyAndCount: async () => [active(), active().length] };
+    const page = {
+      getManyAndCount: () => Promise.resolve([active(), active().length]),
+    };
     return { where: () => ({ skip: () => ({ take: () => page }) }) };
   }
 }
