@@ -1,9 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { ThrottlerGuard } from '@nestjs/throttler';
 import { randomUUID } from 'crypto';
 import { WebhooksController } from './webhooks.controller.js';
 import { WebhooksService } from './webhooks.service.js';
 import { Webhook } from './entities/webhook.entity.js';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard.js';
 
 // In-memory fake repository (not a jest.fn() mock) backing real service logic.
 class InMemoryWebhookRepository {
@@ -40,7 +42,12 @@ describe('WebhooksController integration (real service + repo)', () => {
           useClass: InMemoryWebhookRepository,
         },
       ],
-    }).compile();
+    })
+      .overrideGuard(JwtAuthGuard)
+      .useValue({ canActivate: () => true })
+      .overrideGuard(ThrottlerGuard)
+      .useValue({ canActivate: () => true })
+      .compile();
     controller = module.get(WebhooksController);
   });
 
